@@ -1,0 +1,9 @@
+how to run the sample?
+1. npm install md5
+2. npm install nodemailer
+3. chmod +x app.coffee
+4. ./app.coffee
+5. curl -X PUT localhost:7005/init
+6. open the browser to visit http://localhost:7005
+
+enjoy!
