@@ -11,10 +11,8 @@
       "guid": "0.0.10", 
       "node-static": "0.6.9", 
       "mime": "1.2.9", 
-      "MD5": "1.0.3", 
       "sqlite3": "2.1.7", 
-      "coffeekup": "0.3.1", 
-      "nodemailer": "0.3.44" 
+      "coffeekup": "0.3.1"
   },
   "keywords": ["esp", "framework", "mvc", "restful", "route", "coffeescript"],
   "main": "./lib/esp",
