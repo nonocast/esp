@@ -1,22 +1,26 @@
 # copy from coffeekup
 {spawn, exec} = require 'child_process'
-log = console.log
+run = (cmd) ->
+  child = exec cmd, (error, stdout, stderr) ->
+    console.log "exec error: #{error}" if error?
 
 task 'build', ->
   run 'coffee -o lib -c src/*.coffee'
+  console.log 'build ok'
 
-run = (args...) ->
-  for a in args
-    switch typeof a
-      when 'string' then command = a
-      when 'object'
-        if a instanceof Array then params = a
-        else options = a
-      when 'function' then callback = a
-  
-  command += ' ' + params.join ' ' if params?
-  cmd = spawn '/bin/sh', ['-c', command], options
-  cmd.stdout.on 'data', (data) -> process.stdout.write data
-  cmd.stderr.on 'data', (data) -> process.stderr.write data
-  process.on 'SIGHUP', -> cmd.kill()
-  cmd.on 'exit', (code) -> callback() if callback? and code is 0
+task 'clean', ->
+  run 'rm -f lib/*.js'
+  run 'rm -f dist/lib/*.js'
+  run 'rm -f dist/*.json'
+  console.log 'clean ok'
+
+task 'publish', ->
+  # invoke 'clean'
+  invoke 'build'
+  run 'mkdir -p dist'
+  run 'mkdir -p dist/lib'
+  run 'cp lib/* dist/lib/'
+  run 'cp package.json dist/'
+  run 'cp README.md dist/'
+  run 'sudo npm publish dist'
+  console.log 'publish ok'
