@@ -1,7 +1,7 @@
 {
   "name": "esp",
   "description": "another really simple web development framework",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "author": "Hui Cao <nonocast@gmail.com>",
   "homepage": "http://nonocast.cn",
   "repository": {"type": "git", "url": "git://github.com/nonocast/esp.git"},
@@ -11,7 +11,6 @@
       "guid": "0.0.10", 
       "node-static": "0.6.9", 
       "mime": "1.2.9", 
-      "sqlite3": "2.1.7", 
       "coffeekup": "0.3.1"
   },
   "keywords": ["esp", "framework", "mvc", "restful", "route", "coffeescript"],

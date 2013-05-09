@@ -13,18 +13,21 @@ exports.Store = class Store
     @index = {}
     @types = {}
 
-    @sqlite = require('sqlite3').verbose()
-    @db = new @sqlite.Database('data')
-    @db.exec """
-      CREATE TABLE IF NOT EXISTS [document] (
-        [seq] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        [id] GUID NOT NULL,
-        [createdAt] DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
-        [updatedAt] DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
-        [type] TEXT NOT NULL,
-        [payload] TEXT NOT NULL);
-      CREATE INDEX IF NOT EXISTS [id_index] on [document]([id]);
-      """
+    try
+      @sqlite = require('sqlite3').verbose()
+      @db = new @sqlite.Database('data')
+      @db.exec """
+        CREATE TABLE IF NOT EXISTS [document] (
+          [seq] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+          [id] GUID NOT NULL,
+          [createdAt] DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
+          [updatedAt] DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')),
+          [type] TEXT NOT NULL,
+          [payload] TEXT NOT NULL);
+        CREATE INDEX IF NOT EXISTS [id_index] on [document]([id]);
+        """
+    catch error
+      console.log 'require sqlite3 failed.'
 
   push: (target) ->
     return if target.id? and target.id of @index
@@ -65,6 +68,7 @@ exports.Store = class Store
       target.id = null
 
   load: (callback) =>
+    return unless @db?
     @db.each 'SELECT * FROM [document] ORDER BY [seq]',
       (err, row) =>
         try
