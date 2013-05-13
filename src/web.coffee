@@ -2,7 +2,7 @@ fs = require 'fs'
 qs = require 'querystring'
 url = require 'url'
 path = require 'path'
-kup = require 'coffeekup'
+kup = require './coffeefilter'
 util = require 'util'
 file = new (require 'node-static').Server './public'
 
@@ -113,5 +113,8 @@ class Context
   clearCookie: ->
     @response.setHeader("Set-Cookie", "#{k}=''" for k of @cookie)
 
-  coffee: (template, model) ->
-    @html kup.render template, model, format: false
+  coffee: (template, model={}) ->
+    model.settings =
+      views: './view'
+      format: false
+    @html kup.render template, model

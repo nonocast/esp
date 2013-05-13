@@ -15,8 +15,6 @@ task 'clean', ->
   console.log 'clean ok'
 
 task 'publish', ->
-  # invoke 'clean'
-  invoke 'build'
   run 'mkdir -p dist'
   run 'mkdir -p dist/lib'
   run 'cp lib/* dist/lib/'
