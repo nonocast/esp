@@ -69,13 +69,14 @@ class Context
   constructor: (@request, @response, args) ->
     @[k] = v for k, v of args
 
+    @query = url.parse(@request.url, true).query
+
     if @request.headers.cookie?
       cookie = @request.headers.cookie
       cookie = qs.parse cookie, ';'
       @cookie = {}
       @cookie[k.trim()] = v for k,v of cookie
-    
-    pair = qs.parse(@request.headers.cookie, ';') if @request.headers.cookie?
+
   html: (content,code=200) -> @write 'text/html', content, code
   text: (content) -> @write 'text/plain',content
   json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, ((k,v) -> if k.slice(0,1) is '_' then undefined else v), indent)

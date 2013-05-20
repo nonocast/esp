@@ -14,11 +14,14 @@ task 'clean', ->
   run 'rm -f dist/*.json'
   console.log 'clean ok'
 
-task 'publish', ->
+task 'dist', ->
   run 'mkdir -p dist'
   run 'mkdir -p dist/lib'
   run 'cp lib/* dist/lib/'
   run 'cp package.json dist/'
   run 'cp README.md dist/'
+  console.log 'dist ok'
+
+task 'publish', ->
   run 'sudo npm publish dist'
   console.log 'publish ok'
