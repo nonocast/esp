@@ -2,7 +2,7 @@ how to run the sample?
 1. cp ./sample/note ~/Desktop/whatever
 2. cd ~/Desktop/whatever
 3. npm install esp
-4. npm install md5
+4. npm install MD5
 5. npm install nodemailer
 6. chmod +x app.coffee
 7. ./app.coffee
