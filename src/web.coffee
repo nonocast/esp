@@ -29,6 +29,7 @@ exports.Router = class Router
     @patterns.push new Pattern(method, pattern, callback)
   route: (request, response) ->
     util.log "request #{request.method} #{request.httpVersion} #{request.url}"
+
     for each in @patterns.slice(0).reverse()
       if each.test request
         pattern = each
@@ -36,9 +37,20 @@ exports.Router = class Router
     if pattern?
       # util.log pattern.rule
       args = pattern.exec request
-      pattern.callback.apply new Context(request, response, args)
+      ctx = new Context(request, response, args)
+      ctx.user = @auth.apply ctx
+
+      if @auth? and not ctx.user? and request.url isnt @login
+        @redirect_login response
+      else
+        pattern.callback.apply ctx
     else
       file.serve(request, response)
+
+  redirect_login: (response) ->
+    if @login?
+      response.writeHead 302, 'Location' : @login
+      response.end()
 
 class Pattern
   constructor: (@method, @input, @callback) ->
