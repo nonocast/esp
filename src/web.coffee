@@ -91,7 +91,7 @@ class Context
 
   html: (content,code=200) -> @write 'text/html', content, code
   text: (content) -> @write 'text/plain',content
-  json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, ((k,v) -> if k.slice(0,1) is '_' then undefined else v), indent)
+  json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, null, indent)
   redirect: (uri) ->
     @response.writeHead 302, 'Location' : uri
     @response.end()
