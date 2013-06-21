@@ -38,7 +38,7 @@ exports.Router = class Router
       # util.log pattern.rule
       args = pattern.exec request
       ctx = new Context(request, response, args)
-      ctx.user = @auth.apply ctx
+      ctx.user = @auth.apply ctx if @auth?
 
       if @auth? and not ctx.user? and request.url isnt @login
         @redirect_login response
