@@ -15,4 +15,9 @@ esp.run = (port) ->
   server.run port
 
 esp.route = (callback) -> callback.apply router if callback?
+esp.auth = (login, auth) ->
+  router.login = login
+  router.auth = auth if auth?
+
 esp.store = store
+esp.router = router

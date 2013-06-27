@@ -29,6 +29,7 @@ exports.Router = class Router
     @patterns.push new Pattern(method, pattern, callback)
   route: (request, response) ->
     util.log "request #{request.method} #{request.httpVersion} #{request.url}"
+
     for each in @patterns.slice(0).reverse()
       if each.test request
         pattern = each
@@ -36,9 +37,20 @@ exports.Router = class Router
     if pattern?
       # util.log pattern.rule
       args = pattern.exec request
-      pattern.callback.apply new Context(request, response, args)
+      ctx = new Context(request, response, args)
+      ctx.user = @auth.apply ctx if @auth?
+
+      if @auth? and not ctx.user? and request.url isnt @login
+        @redirect_login response
+      else
+        pattern.callback.apply ctx
     else
       file.serve(request, response)
+
+  redirect_login: (response) ->
+    if @login?
+      response.writeHead 302, 'Location' : @login
+      response.end()
 
 class Pattern
   constructor: (@method, @input, @callback) ->
@@ -69,16 +81,17 @@ class Context
   constructor: (@request, @response, args) ->
     @[k] = v for k, v of args
 
+    @query = url.parse(@request.url, true).query
+
     if @request.headers.cookie?
       cookie = @request.headers.cookie
       cookie = qs.parse cookie, ';'
       @cookie = {}
       @cookie[k.trim()] = v for k,v of cookie
-    
-    pair = qs.parse(@request.headers.cookie, ';') if @request.headers.cookie?
+
   html: (content,code=200) -> @write 'text/html', content, code
   text: (content) -> @write 'text/plain',content
-  json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, ((k,v) -> if k.slice(0,1) is '_' then undefined else v), indent)
+  json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, null, indent)
   redirect: (uri) ->
     @response.writeHead 302, 'Location' : uri
     @response.end()

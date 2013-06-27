@@ -1,7 +1,7 @@
 {
   "name": "esp",
   "description": "another really simple web development framework",
-  "version": "0.1.7",
+  "version": "0.1.11",
   "author": "Hui Cao <nonocast@gmail.com>",
   "homepage": "http://nonocast.cn",
   "repository": {"type": "git", "url": "git://github.com/nonocast/esp.git"},
