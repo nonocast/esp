@@ -10,7 +10,10 @@ exports.Server = class Server
   constructor: (@router) ->
     @server = require('http').createServer()
     @server.on 'request', (request, response) =>
-      @router.route(request, response)
+      try
+        @router.route(request, response)
+      catch error
+        @html error.message, 404
 
   run: (port) ->
     @server.listen port
