@@ -109,6 +109,9 @@ class Context
     @response.end()
 
   view: (file, model) ->
+    model = model or {}
+    model.user = @user.name
+
     file = "#{file}.coffee" if path.extname(file).length == 0
 
     fs.readFile path.join('./view/', file), 'utf-8', (err, content) =>
