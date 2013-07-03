@@ -13,7 +13,10 @@ exports.Server = class Server
       try
         @router.route(request, response)
       catch error
-        @html error.message, 404
+        content = error.message
+        response.writeHead 404, 'Content-Length': Buffer.byteLength(content, 'utf-8')
+        response.write content, 'utf-8'
+        response.end()
 
   run: (port) ->
     @server.listen port
@@ -109,6 +112,9 @@ class Context
     @response.end()
 
   view: (file, model) ->
+    model = model or {}
+    model.user = @user.name if @user?
+
     file = "#{file}.coffee" if path.extname(file).length == 0
 
     fs.readFile path.join('./view/', file), 'utf-8', (err, content) =>
