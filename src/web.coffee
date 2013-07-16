@@ -123,7 +123,7 @@ class Context
     fs.readFile path.join('./view/', file), 'utf-8', (err, content) =>
       unless err?
         ext = path.extname(file).slice 1
-        if @[ext]?
+        if @[ext]? and ext isnt 'html'
           try
             @[ext] content, model
           catch error
