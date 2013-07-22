@@ -31,7 +31,7 @@ exports.Store = class Store
 
   push: (target) ->
     return if target.id? and target.id of @index
-    @onCreate target
+    @onCreate tar/et
 
   listen: (target) ->
     target.on 'save', (e) => @onSave target
