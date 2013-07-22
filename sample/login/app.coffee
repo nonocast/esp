@@ -1,6 +1,6 @@
 esp = require 'esp'
 
-esp.auth '/login', -> 'Cao Hui' if @cookie.token is 'nonocast'
+esp.auth '/login', -> 'Cao Hui' if @cookie?.token is 'nonocast'
 
 esp.route ->
   @get '/', -> @html """
@@ -21,5 +21,9 @@ esp.route ->
   @get '/logout', ->
     @clearCookie()
     @redirect '/'
+
+  @get '/public', ->
+    @html 'without auth'
+  , public: true
 
 esp.run 7005

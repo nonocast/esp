@@ -10,7 +10,13 @@ exports.Server = class Server
   constructor: (@router) ->
     @server = require('http').createServer()
     @server.on 'request', (request, response) =>
-      @router.route(request, response)
+      try
+        @router.route(request, response)
+      catch error
+        content = error.message
+        response.writeHead 500, 'Content-Length': Buffer.byteLength(content, 'utf-8')
+        response.write content, 'utf-8'
+        response.end()
 
   run: (port) ->
     @server.listen port
@@ -19,14 +25,14 @@ exports.Server = class Server
 exports.Router = class Router
   constructor: (callback) -> callback.apply this if callback?
   include: (callback) -> callback.apply this
-  get: (pattern, callback) -> @push 'GET', pattern, callback
-  post: (pattern, callback) -> @push 'POST', pattern, callback
-  put: (pattern, callback) -> @push 'PUT', pattern, callback
-  delete: (pattern, callback) -> @push 'DELETE', pattern, callback
-  head: (pattern, callback) -> @push 'HEAD', pattern, callback
-  push: (method, pattern, callback) ->
+  get: (pattern, callback, option) -> @push 'GET', pattern, callback, option
+  post: (pattern, callback, option) -> @push 'POST', pattern, callback, option
+  put: (pattern, callback, option) -> @push 'PUT', pattern, callback, option
+  delete: (pattern, callback, option) -> @push 'DELETE', pattern, callback, option
+  head: (pattern, callback, option) -> @push 'HEAD', pattern, callback, option
+  push: (method, pattern, callback, option) ->
     @patterns = @patterns ? []
-    @patterns.push new Pattern(method, pattern, callback)
+    @patterns.push new Pattern(method, pattern, callback, option)
   route: (request, response) ->
     util.log "request #{request.method} #{request.httpVersion} #{request.url}"
 
@@ -40,10 +46,13 @@ exports.Router = class Router
       ctx = new Context(request, response, args)
       ctx.user = @auth.apply ctx if @auth?
 
-      if @auth? and not ctx.user? and request.url isnt @login
-        @redirect_login response
-      else
+      if pattern.option?.public
         pattern.callback.apply ctx
+      else
+        if @auth? and not ctx.user? and request.url isnt @login
+          @redirect_login response
+        else
+          pattern.callback.apply ctx
     else
       file.serve(request, response)
 
@@ -53,7 +62,7 @@ exports.Router = class Router
       response.end()
 
 class Pattern
-  constructor: (@method, @input, @callback) ->
+  constructor: (@method, @input, @callback, @option) ->
     if @input instanceof RegExp
       @rule = @input
       return
@@ -92,6 +101,7 @@ class Context
   html: (content,code=200) -> @write 'text/html', content, code
   text: (content) -> @write 'text/plain',content
   json: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, null, indent)
+  j: (data, indent=null) -> @write 'application/json; charset=utf-8', JSON.stringify(data, ((k,v) -> if k.slice(0,1) is '_' then undefined else v), indent)
   redirect: (uri) ->
     @response.writeHead 302, 'Location' : uri
     @response.end()
@@ -105,12 +115,15 @@ class Context
     @response.end()
 
   view: (file, model) ->
+    model = model or {}
+    model.user = @user.name if @user?
+
     file = "#{file}.coffee" if path.extname(file).length == 0
 
     fs.readFile path.join('./view/', file), 'utf-8', (err, content) =>
       unless err?
         ext = path.extname(file).slice 1
-        if @[ext]?
+        if @[ext]? and ext isnt 'html'
           try
             @[ext] content, model
           catch error
